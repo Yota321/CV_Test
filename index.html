@@ -8,26 +8,26 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
   <style>
-    /* ─── RESET & TOKENS ─────────────────────────────────── */
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
     :root{
       --ink:#0e0e0e;--paper:#f5f2ec;--accent:#c8491a;
       --muted:#7a7570;--border:#ccc9c0;
+      --flip-duration: 0.65s;
     }
 
-    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-
-    body{
-      background:var(--paper);color:var(--ink);
-      font-family:'Archivo',sans-serif;font-size:14px;
-      overflow-x:hidden;
-      /* Prevent paint flicker on scroll */
+    html, body {
+      height:100%; overflow:hidden;
+      -webkit-text-size-adjust:100%;
       -webkit-font-smoothing:antialiased;
-      text-rendering:optimizeSpeed;
     }
 
-    /* ─── CARD PALETTES ──────────────────────────────────── */
+    body {
+      background:var(--paper); color:var(--ink);
+      font-family:'Archivo',sans-serif; font-size:14px;
+    }
+
+    /* Card color palettes */
     .c1{background:#1a1a1a;color:#f5f2ec}
     .c2{background:#c8491a;color:#fdf6ee}
     .c3{background:#2c3e50;color:#e8e4dc}
@@ -38,88 +38,206 @@
     .c8{background:#3d2b5e;color:#ede8f8}
     .c9{background:#0e0e0e;color:#f5f2ec}
 
-    /* ═══════════════════════════════════════════════════════
-       DESKTOP  ≥ 768px
-    ═══════════════════════════════════════════════════════ */
-
-    /* ── Hero ── */
-    .hero{
-      height:100vh;display:flex;flex-direction:column;
-      justify-content:flex-end;padding:60px 64px;
-      border-bottom:1px solid var(--border);position:relative;
-      contain:layout style;
+    /* ═══════════════════════════════════════════════
+       DESKTOP — full fixed viewport, no page scroll
+    ═══════════════════════════════════════════════ */
+    .desktop-cv {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      position: fixed;
+      inset: 0;
     }
-    .hero-label{
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      flex: 0 0 42%;
+      height: 100vh;
+      border-right: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      /* perspective for 3D flip */
+      perspective: 1200px;
+    }
+
+    /* Each left "face" — stacked, flipped via rotateX */
+    .left-face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 60px 64px;
+      /* 3D flip setup */
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform-origin: top center;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    /* Incoming face starts folded down (behind, rotated) */
+    .left-face.state-next {
+      transform: rotateX(-90deg);
+      pointer-events: none;
+    }
+    /* Active face is flat */
+    .left-face.state-active {
+      transform: rotateX(0deg);
+    }
+    /* Outgoing face folds up and away */
+    .left-face.state-prev {
+      transform: rotateX(90deg);
+      pointer-events: none;
+    }
+
+    /* Animate only when transitioning */
+    .left-face.animating {
+      transition: transform var(--flip-duration) cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    /* Left face content */
+    .lf-label {
       font-size:11px;font-weight:600;letter-spacing:.18em;
       text-transform:uppercase;color:var(--muted);margin-bottom:20px;
     }
-    .hero-name{
-      font-family:'Instrument Serif',serif;
-      font-size:clamp(64px,10vw,118px);
-      line-height:.92;font-weight:400;letter-spacing:-.02em;
-    }
-    .hero-name em{font-style:italic;color:var(--accent)}
-    .hero-meta{
-      display:flex;gap:36px;margin-top:36px;flex-wrap:wrap;
-    }
-    .hero-meta span{font-size:12px;color:var(--muted);letter-spacing:.04em}
-    .hero-meta a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
-    .hero-scroll{
-      position:absolute;top:40px;right:64px;
-      font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-      color:var(--muted);writing-mode:vertical-rl;
-      display:flex;align-items:center;gap:10px;
-    }
-    .hero-scroll::after{
-      content:'';display:block;width:1px;height:60px;background:var(--muted);
-    }
-
-    /* ── Stack sections ── */
-    .stack-section{width:100%;position:relative;display:flex;contain:layout}
-    .stack-section.h2{height:300vh}
-    .stack-section.h3{height:400vh}
-    .stack-section.h4{height:500vh}
-
-    .stack-left{
-      flex-basis:42%;height:100vh;position:sticky;top:0;
-      display:flex;flex-direction:column;justify-content:flex-end;
-      padding:60px 64px;border-right:1px solid var(--border);
-      contain:layout style;
-    }
-    .section-index{
+    .lf-index {
       font-size:11px;font-weight:600;letter-spacing:.18em;
       text-transform:uppercase;color:var(--accent);margin-bottom:14px;
     }
-    .section-title{
+    .lf-name {
       font-family:'Instrument Serif',serif;
-      font-size:clamp(38px,4.5vw,66px);line-height:1;font-weight:400;
+      font-size:clamp(64px,8.5vw,118px);
+      line-height:.92;font-weight:400;letter-spacing:-.02em;
     }
-    .section-desc{
+    .lf-name em{font-style:italic;color:var(--accent)}
+    .lf-title {
+      font-family:'Instrument Serif',serif;
+      font-size:clamp(38px,4.2vw,66px);
+      line-height:1;font-weight:400;
+    }
+    .lf-desc {
       margin-top:22px;font-size:13px;line-height:1.7;
       color:var(--muted);max-width:300px;
     }
+    .lf-meta {
+      display:flex;gap:28px;margin-top:36px;flex-wrap:wrap;
+    }
+    .lf-meta span{font-size:12px;color:var(--muted);letter-spacing:.03em}
+    .lf-meta a{color:var(--ink);text-decoration:underline;text-underline-offset:3px}
 
-    .stack-right{
-      flex-basis:58%;height:100vh;position:sticky;top:0;
-      overflow:hidden;contain:layout style paint;
+    /* Subtle fold shadow overlay on left panel during flip */
+    .left-panel::after {
+      content:'';
+      position:absolute;inset:0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.06) 0%, transparent 30%);
+      pointer-events:none;
+      opacity:0;
+      transition: opacity 0.3s ease;
+      z-index:10;
+    }
+    .left-panel.flipping::after { opacity:1; }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      flex: 0 0 58%;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* ── Desktop cards ──
-       All transforms use translate3d so the browser composites on GPU.
-       will-change promoted only on .card so we don't blow the layer budget.
-    ── */
-    .card{
-      width:400px;min-height:460px;border-radius:22px;
-      position:absolute;
-      top:calc(50% - 230px);left:calc(50% - 200px);
-      /* Use translate3d to force GPU layer */
-      transform:translate3d(0,0,0) rotate(0deg);
-      transition:transform .42s cubic-bezier(.25,.46,.45,.94);
-      padding:38px 34px;
-      display:flex;flex-direction:column;justify-content:space-between;
-      will-change:transform;
-      backface-visibility:hidden;
+    /* Scroll label on right */
+    .scroll-label {
+      position: absolute;
+      top: 40px; right: 52px;
+      font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--muted);writing-mode:vertical-rl;
+      display:flex;align-items:center;gap:10px;
+      z-index:100;
+      transition: opacity 0.4s ease;
     }
+    .scroll-label::after{
+      content:'';display:block;width:1px;height:60px;background:var(--muted);
+    }
+
+    /* Section dots nav — top left of right panel */
+    .section-nav {
+      position: absolute;
+      top: 44px; left: 44px;
+      display: flex; gap: 8px; align-items: center;
+      z-index: 100;
+    }
+    .snav-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--border);
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .snav-dot.active {
+      background: var(--accent);
+      transform: scale(1.4);
+    }
+    .snav-dot:hover:not(.active) {
+      background: var(--muted);
+    }
+
+    /* ── CARD DECK ── */
+    .card-deck {
+      position: relative;
+      width: 400px;
+      height: 460px;
+    }
+
+    .card {
+      width: 400px; min-height: 460px;
+      border-radius: 22px;
+      position: absolute;
+      top: 0; left: 0;
+      padding: 38px 34px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      backface-visibility: hidden;
+      will-change: transform, opacity;
+      transition: transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94),
+                  opacity 0.4s ease;
+    }
+
+    /* Card states */
+    .card.deck-active {
+      transform: translate3d(0,0,0) rotate(0deg);
+      opacity: 1;
+      z-index: 50;
+    }
+    .card.deck-peek1 {
+      transform: translate3d(0,12px,0) rotate(-3deg) scale(0.96);
+      opacity: 0.7;
+      z-index: 40;
+    }
+    .card.deck-peek2 {
+      transform: translate3d(0,22px,0) rotate(-6deg) scale(0.92);
+      opacity: 0.4;
+      z-index: 30;
+    }
+    .card.deck-hidden {
+      transform: translate3d(0,32px,0) rotate(-9deg) scale(0.88);
+      opacity: 0;
+      z-index: 20;
+      pointer-events: none;
+    }
+    /* Card flying away on advance */
+    .card.deck-gone {
+      transform: translate3d(0,-130vh,0) rotate(-32deg);
+      opacity: 0;
+      z-index: 5;
+      pointer-events: none;
+      transition: transform 0.55s cubic-bezier(0.55,0,1,0.45),
+                  opacity 0.4s ease;
+    }
+
+    /* card internals */
     .card-tag{
       font-size:10px;font-weight:700;letter-spacing:.18em;
       text-transform:uppercase;opacity:.5;margin-bottom:6px;
@@ -142,53 +260,59 @@
       letter-spacing:.12em;text-transform:uppercase;opacity:.45;
     }
 
-    /* ── Desktop footer ── */
-    .cv-footer{
-      padding:80px 64px;border-top:1px solid var(--border);
-      display:flex;justify-content:space-between;
-      align-items:flex-end;flex-wrap:wrap;gap:40px;
+    /* scroll hint on top card */
+    .top-card-scroll {
+      position: absolute;
+      top: -32px; right: 0;
+      font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+      color:var(--muted);
+      display:flex;align-items:center;gap:8px;
+      transition: opacity 0.5s ease;
     }
-    .cv-footer-name{
-      font-family:'Instrument Serif',serif;font-size:52px;line-height:1;
+    .top-card-scroll::before {
+      content:'';display:block;width:24px;height:1px;background:var(--muted);
     }
-    .cv-footer-avail{font-size:12px;color:var(--muted);max-width:300px;line-height:1.9}
-    .cv-footer-avail strong{
+
+    /* ── DESKTOP FOOTER (last left face) ── */
+    .lf-footer-name {
+      font-family:'Instrument Serif',serif;
+      font-size:clamp(38px,4.2vw,66px);line-height:1;font-weight:400;
+      margin-bottom:28px;
+    }
+    .lf-footer-avail {
+      font-size:12px;color:var(--muted);line-height:1.9;
+    }
+    .lf-footer-avail strong {
       display:block;color:var(--accent);font-size:10px;
       letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px;
     }
 
-    /* mobile hidden on desktop */
+    /* ── mobile hidden ── */
     .mobile-cv{display:none}
 
-
-    /* ═══════════════════════════════════════════════════════
-       MOBILE  ≤ 767px
-       Full-screen composited swipe deck
-    ═══════════════════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════
+       MOBILE ≤ 767px
+    ═══════════════════════════════════════════════ */
     @media(max-width:767px){
-
-      .hero,.stack-section,.cv-footer{display:none!important}
+      .desktop-cv{display:none!important}
       .mobile-cv{display:block}
 
       body{
         background:#0e0e0e;
         overflow:hidden;
         height:100dvh;
-        /* iOS momentum scroll fix */
         -webkit-overflow-scrolling:touch;
       }
 
-      /* ── Top bar ── */
       .m-header{
         position:fixed;top:0;left:0;right:0;z-index:100;
-        padding:env(safe-area-inset-top,0px) 24px 0;
         padding-top:max(20px,env(safe-area-inset-top));
         padding-bottom:14px;
+        padding-left:24px;padding-right:24px;
         display:flex;justify-content:space-between;align-items:flex-start;
-        /* frosted glass — no paint flicker */
-        background:rgba(14,14,14,.75);
-        -webkit-backdrop-filter:blur(12px);
-        backdrop-filter:blur(12px);
+        background:rgba(14,14,14,.8);
+        -webkit-backdrop-filter:blur(14px);
+        backdrop-filter:blur(14px);
       }
       .m-header-name{
         font-family:'Instrument Serif',serif;font-size:20px;
@@ -200,22 +324,17 @@
         color:rgba(245,242,236,.35);padding-top:4px;
         font-variant-numeric:tabular-nums;
       }
-
-      /* ── Progress bar ── */
       .m-progress{
         position:fixed;top:0;left:0;right:0;z-index:200;
         height:2px;background:transparent;
       }
       .m-progress-fill{
         height:100%;background:var(--accent);
-        /* GPU-composited width change */
         transform-origin:left;
-        transition:transform .35s cubic-bezier(.25,.46,.45,.94);
+        transition:transform .38s cubic-bezier(.25,.46,.45,.94);
         transform:scaleX(0);
         width:100%;
       }
-
-      /* ── Hint ── */
       .m-hint{
         position:fixed;bottom:22px;left:50%;
         transform:translate3d(-50%,0,0);
@@ -225,42 +344,28 @@
         transition:opacity .5s ease;
         white-space:nowrap;
       }
-
-      /* ── Deck ── */
       .m-deck{
         position:fixed;inset:0;
         display:flex;align-items:center;justify-content:center;
-        /* isolate stacking context */
         isolation:isolate;
       }
-
-      /* ── Cards ──
-         Every positional state uses translate3d so transforms are
-         composited on the GPU — no layout or paint triggered.
-      ── */
       .m-card{
         position:absolute;
         width:calc(100vw - 32px);max-width:400px;
         height:74dvh;border-radius:24px;
         padding:28px 26px;
         display:flex;flex-direction:column;
-        /* default: invisible, stacked far back */
         transform:translate3d(0,36px,0) scale(.86);
-        opacity:0;
-        z-index:20;
-        /* smooth settle after drag release */
-        transition:transform .38s cubic-bezier(.34,1.26,.64,1),
-                   opacity   .3s  ease;
-        /* GPU layer */
+        opacity:0;z-index:20;
+        transition:transform .42s cubic-bezier(.34,1.26,.64,1),
+                   opacity .3s ease;
         will-change:transform,opacity;
         backface-visibility:hidden;
         contain:layout style paint;
         overflow:hidden;
-        touch-action:none; /* we handle all touch ourselves */
+        touch-action:none;
         user-select:none;
       }
-
-      /* Stacking peek states — pure transform, no layout */
       .m-card.peek-2{
         transform:translate3d(0,26px,0) scale(.90);
         opacity:.25;z-index:30;
@@ -277,12 +382,8 @@
         transform:translate3d(-110vw,0,0) rotate(-16deg);
         opacity:0;z-index:5;pointer-events:none;
       }
-      /* While dragging: transition OFF so it tracks finger exactly */
-      .m-card.dragging{
-        transition:none!important;
-      }
+      .m-card.dragging{transition:none!important}
 
-      /* ── Card internals ── */
       .m-section-label{
         display:flex;align-items:center;gap:8px;
         margin-bottom:14px;flex-shrink:0;
@@ -306,7 +407,6 @@
         flex:1;overflow-y:auto;
         -webkit-overflow-scrolling:touch;
         padding-right:4px;
-        /* prevent body scroll from propagating */
         overscroll-behavior:contain;
       }
       .m-card-body::-webkit-scrollbar{width:2px}
@@ -329,8 +429,6 @@
         font-size:10px;font-weight:700;letter-spacing:.14em;
         text-transform:uppercase;opacity:.3;flex-shrink:0;
       }
-
-      /* ── Dot nav ── */
       .m-dots{
         position:fixed;bottom:18px;left:50%;
         transform:translate3d(-50%,0,0);
@@ -346,173 +444,201 @@
       .m-dot.active{
         background:var(--accent);width:16px;border-radius:2px;
       }
-    }/* end @media mobile */
+    }
   </style>
 </head>
 <body>
 
 <!-- ═══════════════════════════════
      DESKTOP LAYOUT
+     Fixed viewport, no page scroll.
+     Left flips vertically. Cards stack right.
 ═══════════════════════════════ -->
+<div class="desktop-cv" id="desktop-cv">
 
-<section class="hero">
-  <div class="hero-scroll">Scroll</div>
-  <div class="hero-label">Curriculum Vitae · 2026</div>
-  <h1 class="hero-name">Golam<br><em>Sayon</em><br>Ahamed</h1>
-  <div class="hero-meta">
-    <span>Design Intern — Brand &amp; Visual Communication</span>
-    <span>sayanahamed06@gmail.com</span>
-    <span>+91 700 182 0537</span>
-    <span><a href="https://sayanahamed.online" target="_blank">sayanahamed.online</a></span>
-  </div>
-</section>
+  <!-- LEFT PANEL: one face per section, flips vertically -->
+  <div class="left-panel" id="left-panel">
 
-<!-- 01 About & Education -->
-<div class="stack-section h2" id="s1">
-  <div class="stack-left">
-    <div class="section-index">01</div>
-    <div class="section-title">About &amp;<br>Education</div>
-    <p class="section-desc">Design student focused on brand systems, UI/UX, and concept-driven visual communication.</p>
-  </div>
-  <div class="stack-right" id="sr1">
-    <div class="card c1">
-      <div><div class="card-tag">About</div>
-      <div class="card-heading">Design student building brand systems that scale.</div></div>
-      <div class="card-body">Interested in how ideas scale across digital and physical touchpoints — with attention to clarity, structure, and user behaviour. Approach design through concept-first thinking, not decoration.</div>
-      <div class="card-footer">sayanahamed.online</div>
+    <!-- Face 0: Hero / Name -->
+    <div class="left-face state-active" data-face="0">
+      <div class="lf-label">Curriculum Vitae · 2026</div>
+      <h1 class="lf-name">Golam<br><em>Sayon</em><br>Ahamed</h1>
+      <div class="lf-meta">
+        <span>Design Intern — Brand &amp; Visual Communication</span>
+        <span>sayanahamed06@gmail.com</span>
+        <span>+91 700 182 0537</span>
+        <span><a href="https://sayanahamed.online" target="_blank">sayanahamed.online</a></span>
+      </div>
     </div>
-    <div class="card c2">
-      <div><div class="card-tag">Education</div>
-      <div class="card-heading">IDeA World College,<br>Bangalore City University</div></div>
-      <div class="card-body">Bachelor of Visual Arts (BVA)<br>Graphic &amp; Communication Design<br><br>Expected graduation: August 2027<br>Bengaluru, India</div>
-      <div class="card-footer">Strong academic scores in core design practicals</div>
-    </div>
-  </div>
-</div>
 
-<!-- 02 Experience -->
-<div class="stack-section h3" id="s2">
-  <div class="stack-left">
-    <div class="section-index">02</div>
-    <div class="section-title">Experience</div>
-    <p class="section-desc">Current internship at a doctor-led men's health brand in Bengaluru.</p>
-  </div>
-  <div class="stack-right" id="sr2">
-    <div class="card c3">
-      <div><div class="card-tag">Design Intern · Feb 2026 – Present</div>
-      <div class="card-heading">RaazMD<br>Health-Tech Startup</div></div>
-      <div class="card-body">Brand &amp; Campaign Design · Bengaluru, India<br><br>Designed 10+ YouTube thumbnails optimised for clarity, contrast, and viewer engagement. Defined a visual language system for text placement, colour usage, composition, and emotional cues.</div>
-      <div class="card-footer">Brand · Campaign · Social</div>
+    <!-- Face 1: About & Education -->
+    <div class="left-face state-next" data-face="1">
+      <div class="lf-index">01</div>
+      <div class="lf-title">About &amp;<br>Education</div>
+      <p class="lf-desc">Design student focused on brand systems, UI/UX, and concept-driven visual communication.</p>
     </div>
-    <div class="card c4">
-      <div><div class="card-tag">RaazMD — continued</div>
-      <div class="card-heading">Platform-wide brand presence.</div></div>
-      <div class="card-body"><ul>
-        <li>Channel banners &amp; headers for YouTube, Twitter, LinkedIn</li>
-        <li>LinkedIn banner adopted across company &amp; employee profiles</li>
-        <li>Carousel posts, social creatives, and Meta ad assets</li>
-        <li>Merchandise design &amp; packaging visuals for upcoming products</li>
-        <li>Iterated on feedback from marketing and performance data</li>
-      </ul></div>
-      <div class="card-footer">Raaz MD · Health-Tech</div>
-    </div>
-    <div class="card c5">
-      <div><div class="card-tag">Role Overview</div>
-      <div class="card-heading">Systems, not just screens.</div></div>
-      <div class="card-body">Every deliverable at RaazMD was designed within a coherent brand system — ensuring visual consistency from a single post to cross-platform campaign rollouts. Focused on reusable templates and rules others can follow.</div>
-      <div class="card-footer">Brand System Thinking</div>
-    </div>
-  </div>
-</div>
 
-<!-- 03 Projects -->
-<div class="stack-section h4" id="s3">
-  <div class="stack-left">
-    <div class="section-index">03</div>
-    <div class="section-title">Design<br>Projects</div>
-    <p class="section-desc">Concept-driven work across brand, UI/UX, and speculative design.</p>
-  </div>
-  <div class="stack-right" id="sr3">
-    <div class="card c6">
-      <div><div class="card-tag">Brand Campaign · OOH · Social · Landing Page</div>
-      <div class="card-heading">Run Your Story</div></div>
-      <div class="card-body">Concept-driven brand campaign exploring personal motivation in running. Worked across posters, OOH mockups, Instagram activation, and landing page layout — user psychology and emotional connection at the core.</div>
-      <div class="card-footer">User Psychology · Emotional Design</div>
+    <!-- Face 2: Experience -->
+    <div class="left-face state-next" data-face="2">
+      <div class="lf-index">02</div>
+      <div class="lf-title">Experience</div>
+      <p class="lf-desc">Current internship at a doctor-led men's health brand in Bengaluru.</p>
     </div>
-    <div class="card c7">
-      <div><div class="card-tag">UI/UX · Platform Concept · Marketplace</div>
-      <div class="card-heading">Forge</div></div>
-      <div class="card-body">Platform concept for a footwear design community and marketplace. Designed role-based onboarding, discovery flows, marketplace structure, and interaction logic — systems, not isolated screens.</div>
-      <div class="card-footer">Systems Thinking · User Flows · Onboarding</div>
-    </div>
-    <div class="card c8">
-      <div><div class="card-tag">Speculative · Brand Reimagining</div>
-      <div class="card-heading">Marvel × A24</div></div>
-      <div class="card-body">Explored how Marvel films might feel under A24's tone — a cohesive system across posters, merchandise, motion, and a streaming-style interface.</div>
-      <div class="card-footer">Posters · Motion · Interface · Merch</div>
-    </div>
-    <div class="card c1">
-      <div><div class="card-tag">Self-Initiated · Learning in Public</div>
-      <div class="card-heading">Rainfall Animation</div></div>
-      <div class="card-body">Canvas-based rainfall with perspective surface, wind toggle, day/night palette, and ripple interactions. Currently v3 — v4 roadmap in progress.</div>
-      <div class="card-footer">yota321.github.io/Rainfall_Animation_Learning</div>
-    </div>
-  </div>
-</div>
 
-<!-- 04 Skills -->
-<div class="stack-section h3" id="s4">
-  <div class="stack-left">
-    <div class="section-index">04</div>
-    <div class="section-title">Skills &amp;<br>Tools</div>
-    <p class="section-desc">Systems thinking, craft, and multi-language ability.</p>
-  </div>
-  <div class="stack-right" id="sr4">
-    <div class="card c2">
-      <div><div class="card-tag">Design Skills</div>
-      <div class="card-heading">What I bring to a brief.</div></div>
-      <div class="card-body"><ul>
-        <li>Brand systems &amp; visual identity</li>
-        <li>Concept development &amp; campaign strategy</li>
-        <li>Layout, typography &amp; hierarchy</li>
-        <li>UI/UX design &amp; user flows</li>
-        <li>Interactive prototyping (Figma)</li>
-        <li>Design rationale &amp; presentations</li>
-      </ul></div>
-      <div class="card-footer">Systems · Craft · Communication</div>
+    <!-- Face 3: Design Projects -->
+    <div class="left-face state-next" data-face="3">
+      <div class="lf-index">03</div>
+      <div class="lf-title">Design<br>Projects</div>
+      <p class="lf-desc">Concept-driven work across brand, UI/UX, and speculative design.</p>
     </div>
-    <div class="card c3">
-      <div><div class="card-tag">Tools</div>
-      <div class="card-heading">Software I work in.</div></div>
-      <div class="card-body"><ul>
-        <li>Figma</li><li>Adobe Photoshop</li><li>Adobe Illustrator</li>
-        <li>Adobe InDesign</li><li>Adobe Premiere Pro</li><li>HTML / CSS (basic)</li>
-      </ul></div>
-      <div class="card-footer">Adobe Suite · Figma · Code</div>
-    </div>
-    <div class="card c5">
-      <div><div class="card-tag">Languages</div>
-      <div class="card-heading">How I communicate.</div></div>
-      <div class="card-body"><ul>
-        <li>English — Fluent</li><li>Bengali — Native</li>
-        <li>Hindi — Fluent</li><li>German — Beginner</li>
-      </ul></div>
-      <div class="card-footer">Multi-language · Open to Relocation</div>
-    </div>
-  </div>
-</div>
 
-<footer class="cv-footer">
-  <div class="cv-footer-name">Golam Sayon<br>Ahamed</div>
-  <div class="cv-footer-avail">
-    <strong>Availability</strong>
-    Available for 3–6 month internship<br>
-    Start: August or September 2026<br>
-    Open to relocation · EU / Germany preferred<br><br>
-    sayanahamed06@gmail.com<br>
-    sayanahamed.online
-  </div>
-</footer>
+    <!-- Face 4: Skills & Tools -->
+    <div class="left-face state-next" data-face="4">
+      <div class="lf-index">04</div>
+      <div class="lf-title">Skills &amp;<br>Tools</div>
+      <p class="lf-desc">Systems thinking, craft, and multi-language ability.</p>
+    </div>
+
+    <!-- Face 5: Contact/End -->
+    <div class="left-face state-next" data-face="5">
+      <div class="lf-footer-name">Golam Sayon<br>Ahamed</div>
+      <div class="lf-footer-avail">
+        <strong>Availability</strong>
+        Available for 3–6 month internship<br>
+        Start: August or September 2026<br>
+        Open to relocation · EU / Germany preferred<br><br>
+        sayanahamed06@gmail.com<br>
+        sayanahamed.online
+      </div>
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- RIGHT PANEL: card deck, always visible -->
+  <div class="right-panel" id="right-panel">
+
+    <!-- Top scroll hint -->
+    <div class="scroll-label" id="scroll-label">Scroll</div>
+
+    <!-- Section nav dots -->
+    <div class="section-nav" id="section-nav"></div>
+
+    <!-- The card deck -->
+    <div class="card-deck" id="card-deck">
+      <div class="top-card-scroll" id="top-card-scroll">scroll</div>
+
+      <!-- Group 0: Hero placeholder cards (shown on face 0) -->
+      <!-- Group 1: About & Education -->
+      <div class="card c1" data-group="1" data-idx="0">
+        <div><div class="card-tag">About</div>
+        <div class="card-heading">Design student building brand systems that scale.</div></div>
+        <div class="card-body">Interested in how ideas scale across digital and physical touchpoints — with attention to clarity, structure, and user behaviour. Approach design through concept-first thinking, not decoration.</div>
+        <div class="card-footer">sayanahamed.online</div>
+      </div>
+      <div class="card c2" data-group="1" data-idx="1">
+        <div><div class="card-tag">Education</div>
+        <div class="card-heading">IDeA World College,<br>Bangalore City University</div></div>
+        <div class="card-body">Bachelor of Visual Arts (BVA)<br>Graphic &amp; Communication Design<br><br>Expected graduation: August 2027<br>Bengaluru, India</div>
+        <div class="card-footer">Strong academic scores in core design practicals</div>
+      </div>
+
+      <!-- Group 2: Experience -->
+      <div class="card c3" data-group="2" data-idx="0">
+        <div><div class="card-tag">Design Intern · Feb 2026 – Present</div>
+        <div class="card-heading">RaazMD<br>Health-Tech Startup</div></div>
+        <div class="card-body">Brand &amp; Campaign Design · Bengaluru, India<br><br>Designed 10+ YouTube thumbnails optimised for clarity, contrast, and viewer engagement. Defined a visual language system for text placement, colour usage, composition, and emotional cues.</div>
+        <div class="card-footer">Brand · Campaign · Social</div>
+      </div>
+      <div class="card c4" data-group="2" data-idx="1">
+        <div><div class="card-tag">RaazMD — continued</div>
+        <div class="card-heading">Platform-wide brand presence.</div></div>
+        <div class="card-body"><ul>
+          <li>Channel banners &amp; headers for YouTube, Twitter, LinkedIn</li>
+          <li>LinkedIn banner adopted across company &amp; employee profiles</li>
+          <li>Carousel posts, social creatives, and Meta ad assets</li>
+          <li>Merchandise design &amp; packaging visuals</li>
+          <li>Iterated on feedback from marketing and performance data</li>
+        </ul></div>
+        <div class="card-footer">Raaz MD · Health-Tech</div>
+      </div>
+      <div class="card c5" data-group="2" data-idx="2">
+        <div><div class="card-tag">Role Overview</div>
+        <div class="card-heading">Systems, not just screens.</div></div>
+        <div class="card-body">Every deliverable at RaazMD was designed within a coherent brand system — ensuring visual consistency from a single post to cross-platform campaign rollouts. Focused on reusable templates and rules others can follow.</div>
+        <div class="card-footer">Brand System Thinking</div>
+      </div>
+
+      <!-- Group 3: Design Projects -->
+      <div class="card c6" data-group="3" data-idx="0">
+        <div><div class="card-tag">Brand Campaign · OOH · Social · Landing Page</div>
+        <div class="card-heading">Run Your Story</div></div>
+        <div class="card-body">Concept-driven brand campaign exploring personal motivation in running. Worked across posters, OOH mockups, Instagram activation, and landing page layout — user psychology and emotional connection at the core.</div>
+        <div class="card-footer">User Psychology · Emotional Design</div>
+      </div>
+      <div class="card c7" data-group="3" data-idx="1">
+        <div><div class="card-tag">UI/UX · Platform Concept · Marketplace</div>
+        <div class="card-heading">Forge</div></div>
+        <div class="card-body">Platform concept for a footwear design community and marketplace. Designed role-based onboarding, discovery flows, marketplace structure, and interaction logic — systems, not isolated screens.</div>
+        <div class="card-footer">Systems Thinking · User Flows · Onboarding</div>
+      </div>
+      <div class="card c8" data-group="3" data-idx="2">
+        <div><div class="card-tag">Speculative · Brand Reimagining</div>
+        <div class="card-heading">Marvel × A24</div></div>
+        <div class="card-body">Explored how Marvel films might feel under A24's tone — a cohesive system across posters, merchandise, motion, and a streaming-style interface.</div>
+        <div class="card-footer">Posters · Motion · Interface · Merch</div>
+      </div>
+      <div class="card c1" data-group="3" data-idx="3">
+        <div><div class="card-tag">Self-Initiated · Learning in Public</div>
+        <div class="card-heading">Rainfall Animation</div></div>
+        <div class="card-body">Canvas-based rainfall with perspective surface, wind toggle, day/night palette, and ripple interactions. Currently v3 — v4 roadmap in progress.</div>
+        <div class="card-footer">yota321.github.io/Rainfall_Animation_Learning</div>
+      </div>
+
+      <!-- Group 4: Skills & Tools -->
+      <div class="card c2" data-group="4" data-idx="0">
+        <div><div class="card-tag">Design Skills</div>
+        <div class="card-heading">What I bring to a brief.</div></div>
+        <div class="card-body"><ul>
+          <li>Brand systems &amp; visual identity</li>
+          <li>Concept development &amp; campaign strategy</li>
+          <li>Layout, typography &amp; hierarchy</li>
+          <li>UI/UX design &amp; user flows</li>
+          <li>Interactive prototyping (Figma)</li>
+          <li>Design rationale &amp; presentations</li>
+        </ul></div>
+        <div class="card-footer">Systems · Craft · Communication</div>
+      </div>
+      <div class="card c3" data-group="4" data-idx="1">
+        <div><div class="card-tag">Tools</div>
+        <div class="card-heading">Software I work in.</div></div>
+        <div class="card-body"><ul>
+          <li>Figma</li><li>Adobe Photoshop</li><li>Adobe Illustrator</li>
+          <li>Adobe InDesign</li><li>Adobe Premiere Pro</li><li>HTML / CSS (basic)</li>
+        </ul></div>
+        <div class="card-footer">Adobe Suite · Figma · Code</div>
+      </div>
+      <div class="card c5" data-group="4" data-idx="2">
+        <div><div class="card-tag">Languages</div>
+        <div class="card-heading">How I communicate.</div></div>
+        <div class="card-body"><ul>
+          <li>English — Fluent</li><li>Bengali — Native</li>
+          <li>Hindi — Fluent</li><li>German — Beginner</li>
+        </ul></div>
+        <div class="card-footer">Multi-language · Open to Relocation</div>
+      </div>
+
+      <!-- Group 5: Contact -->
+      <div class="card c9" data-group="5" data-idx="0">
+        <div><div class="card-tag">Availability</div>
+        <div class="card-heading">Let's work<br>together.</div></div>
+        <div class="card-body">Available for 3–6 month internship<br>Start: August or September 2026<br>Open to relocation · EU / Germany preferred<br><br>sayanahamed06@gmail.com<br>+91 700 182 0537<br>sayanahamed.online</div>
+        <div class="card-footer">05 — Contact</div>
+      </div>
+
+    </div><!-- /card-deck -->
+  </div><!-- /right-panel -->
+
+</div><!-- /desktop-cv -->
 
 
 <!-- ═══════════════════════════════
@@ -644,59 +770,284 @@
 
 
 <script>
-/* ═══════════════════════════════════════════════
-   DESKTOP — rAF-throttled scroll, GPU transforms
-═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   DESKTOP ENGINE
+   — Wheel / trackpad scroll drives section + card changes
+   — Left panel flips vertically (rotateX)
+   — Right panel shows the correct group of cards as a deck
+   — No page scrolling whatsoever
+═══════════════════════════════════════════════════════ */
 (function(){
-  // Only run on desktop
   if(window.innerWidth < 768) return;
 
-  const sections = document.querySelectorAll('.stack-section');
-  let ticking = false;
+  /* ── Data ── */
+  // sections: each has a left face index and a list of card indices (within that group)
+  const SECTIONS = [
+    { face:0, group:0 },   // Hero — no cards, show "intro" deck state
+    { face:1, group:1 },   // About & Education
+    { face:2, group:2 },   // Experience
+    { face:3, group:3 },   // Design Projects
+    { face:4, group:4 },   // Skills & Tools
+    { face:5, group:5 },   // Contact
+  ];
+  const TOTAL_SECTIONS = SECTIONS.length;
 
-  function updateAll(){
-    sections.forEach(section=>{
-      const right = section.querySelector('.stack-right');
-      if(!right) return;
-      const cards = Array.from(right.querySelectorAll('.card'));
-      const count = cards.length;
-      const distance = window.innerHeight * 0.9;
-      const topVal = section.getBoundingClientRect().top;
-      const index  = Math.floor(-1*(topVal/distance + 1));
+  /* ── Elements ── */
+  const leftPanel    = document.getElementById('left-panel');
+  const faces        = Array.from(leftPanel.querySelectorAll('.left-face'));
+  const cardDeck     = document.getElementById('card-deck');
+  const allCards     = Array.from(cardDeck.querySelectorAll('.card'));
+  const scrollLabel  = document.getElementById('scroll-label');
+  const topHint      = document.getElementById('top-card-scroll');
+  const sectionNav   = document.getElementById('section-nav');
 
-      let angle = 0;
-      cards.forEach((card,i)=>{
-        if(i <= index){
-          // fly away — translate3d keeps it on compositor thread
-          card.style.transform = 'translate3d(0,-120vh,0) rotate(-44deg)';
-          card.style.zIndex = '0';
-        } else {
-          card.style.transform = `translate3d(0,0,0) rotate(${angle}deg)`;
-          card.style.zIndex    = String(count - i);
-          angle -= 8;
-        }
-      });
+  /* Group cards by their data-group attribute */
+  const cardGroups = {};
+  allCards.forEach(card => {
+    const g = parseInt(card.dataset.group);
+    if(!cardGroups[g]) cardGroups[g] = [];
+    cardGroups[g].push(card);
+  });
+
+  /* ── State ── */
+  let currentSection = 0;
+  let cardIndexInGroup = 0;  // which card within current group is "top"
+  let isAnimating = false;
+  let wheelAccum = 0;
+  const WHEEL_THRESH = 60;
+
+  /* ── Nav dots ── */
+  SECTIONS.forEach((s, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'snav-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => {
+      if(!isAnimating) goToSection(i, i > currentSection ? 'forward' : 'backward');
     });
-    ticking = false;
+    sectionNav.appendChild(dot);
+  });
+  const navDots = Array.from(sectionNav.querySelectorAll('.snav-dot'));
+
+  /* ── Layout all cards ── */
+  function layoutCards(section, cardIdx, instant) {
+    const group = SECTIONS[section].group;
+    const cards = cardGroups[group] || [];
+
+    // Hide all cards not in this group
+    allCards.forEach(card => {
+      const g = parseInt(card.dataset.group);
+      if(g !== group) {
+        card.className = 'card ' + card.classList[1] + ' deck-hidden';
+        card.style.transition = instant ? 'none' : '';
+      }
+    });
+
+    // Lay out cards in current group
+    cards.forEach((card, i) => {
+      const offset = i - cardIdx;
+      card.style.transition = instant ? 'none' : '';
+      if(offset < 0) {
+        card.className = 'card ' + card.classList[1] + ' deck-gone';
+      } else if(offset === 0) {
+        card.className = 'card ' + card.classList[1] + ' deck-active';
+      } else if(offset === 1) {
+        card.className = 'card ' + card.classList[1] + ' deck-peek1';
+      } else if(offset === 2) {
+        card.className = 'card ' + card.classList[1] + ' deck-peek2';
+      } else {
+        card.className = 'card ' + card.classList[1] + ' deck-hidden';
+      }
+    });
+
+    // Show/hide scroll label and top hint
+    const hasMoreCards = cardIdx < cards.length - 1;
+    const hasMoreSections = section < TOTAL_SECTIONS - 1;
+    scrollLabel.style.opacity = (hasMoreCards || hasMoreSections) ? '1' : '0';
+    topHint.style.opacity = (section === 0) ? '1' : (hasMoreCards ? '0.6' : '0.2');
+
+    if(instant) {
+      requestAnimationFrame(() => {
+        allCards.forEach(c => { c.style.transition = ''; });
+      });
+    }
   }
 
-  window.addEventListener('scroll',()=>{
-    if(!ticking){
-      requestAnimationFrame(updateAll);
-      ticking = true;
-    }
-  },{passive:true});
+  /* ── Flip left face ── */
+  function flipLeft(fromIdx, toIdx, direction, cb) {
+    const fromFace = faces[fromIdx];
+    const toFace   = faces[toIdx];
 
-  // Initial paint
-  updateAll();
+    leftPanel.classList.add('flipping');
+
+    // Set initial state of incoming face without transition
+    toFace.classList.remove('animating');
+    toFace.className = 'left-face';
+    toFace.style.transform = direction === 'forward'
+      ? 'rotateX(-90deg)'
+      : 'rotateX(90deg)';
+
+    // Force reflow
+    void toFace.offsetHeight;
+
+    // Animate both faces
+    fromFace.classList.add('animating');
+    toFace.classList.add('animating');
+
+    fromFace.style.transform = direction === 'forward'
+      ? 'rotateX(90deg)'
+      : 'rotateX(-90deg)';
+    toFace.style.transform = 'rotateX(0deg)';
+
+    const dur = parseFloat(getComputedStyle(document.documentElement)
+      .getPropertyValue('--flip-duration')) * 1000;
+
+    setTimeout(() => {
+      fromFace.classList.remove('animating');
+      toFace.classList.remove('animating');
+      fromFace.style.transform = '';
+      toFace.style.transform   = '';
+      // Reset class states
+      faces.forEach((f, i) => {
+        f.className = 'left-face';
+        if(i < toIdx)      f.style.transform = 'rotateX(90deg)';
+        else if(i === toIdx) f.style.transform = 'rotateX(0deg)';
+        else                 f.style.transform = 'rotateX(-90deg)';
+      });
+      leftPanel.classList.remove('flipping');
+      cb && cb();
+    }, dur + 20);
+  }
+
+  /* ── Go to section ── */
+  function goToSection(newSection, direction) {
+    if(newSection < 0 || newSection >= TOTAL_SECTIONS) return;
+    if(isAnimating) return;
+    isAnimating = true;
+
+    const prevSection = currentSection;
+    const prevFace    = SECTIONS[prevSection].face;
+    const newFace     = SECTIONS[newSection].face;
+    currentSection    = newSection;
+    cardIndexInGroup  = 0;
+
+    // Update nav dots
+    navDots.forEach((d,i) => d.classList.toggle('active', i === newSection));
+
+    // Flip left panel
+    flipLeft(prevFace, newFace, direction, () => {
+      isAnimating = false;
+    });
+
+    // Animate cards
+    layoutCards(newSection, 0, false);
+  }
+
+  /* ── Advance card within section ── */
+  function advanceCard() {
+    const group = SECTIONS[currentSection].group;
+    const cards = cardGroups[group] || [];
+    if(cardIndexInGroup < cards.length - 1) {
+      cardIndexInGroup++;
+      layoutCards(currentSection, cardIndexInGroup, false);
+      return true; // consumed
+    }
+    return false;
+  }
+
+  function retreatCard() {
+    if(cardIndexInGroup > 0) {
+      cardIndexInGroup--;
+      layoutCards(currentSection, cardIndexInGroup, false);
+      return true;
+    }
+    return false;
+  }
+
+  /* ── Wheel handler ── */
+  let wheelTimer = null;
+  window.addEventListener('wheel', e => {
+    e.preventDefault();
+
+    // Trackpad: small deltas accumulate; mouse wheel: large delta, snap immediately
+    const delta = e.deltaY;
+    wheelAccum += delta;
+
+    clearTimeout(wheelTimer);
+    wheelTimer = setTimeout(() => { wheelAccum = 0; }, 200);
+
+    if(Math.abs(wheelAccum) < WHEEL_THRESH) return;
+    const direction = wheelAccum > 0 ? 'forward' : 'backward';
+    wheelAccum = 0;
+
+    if(isAnimating) return;
+
+    if(direction === 'forward') {
+      // Try advancing card first
+      if(!advanceCard()) {
+        // Then advance section
+        if(currentSection < TOTAL_SECTIONS - 1) {
+          goToSection(currentSection + 1, 'forward');
+        }
+      }
+    } else {
+      // Try retreating card first
+      if(!retreatCard()) {
+        if(currentSection > 0) {
+          goToSection(currentSection - 1, 'backward');
+          // Go to last card in previous section
+          setTimeout(() => {
+            const group = SECTIONS[currentSection].group;
+            const cards = cardGroups[group] || [];
+            cardIndexInGroup = Math.max(0, cards.length - 1);
+            layoutCards(currentSection, cardIndexInGroup, false);
+          }, 100);
+        }
+      }
+    }
+  }, { passive: false });
+
+  /* ── Keyboard ── */
+  window.addEventListener('keydown', e => {
+    if(isAnimating) return;
+    if(e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+      if(!advanceCard()) {
+        if(currentSection < TOTAL_SECTIONS - 1)
+          goToSection(currentSection + 1, 'forward');
+      }
+    } else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+      if(!retreatCard()) {
+        if(currentSection > 0)
+          goToSection(currentSection - 1, 'backward');
+      }
+    }
+  });
+
+  /* ── Initial layout ── */
+  // Set all faces to their initial transform
+  faces.forEach((f, i) => {
+    f.style.transform = i === 0 ? 'rotateX(0deg)' : 'rotateX(-90deg)';
+  });
+
+  // Hide all cards first, then show group 0 (none — hero has no group 0 cards)
+  // Actually hero shows a "teaser" — first cards of group 1 peeking
+  allCards.forEach(card => {
+    card.className = 'card ' + card.classList[1] + ' deck-hidden';
+  });
+
+  // Show first section's cards as teaser
+  const teaser = cardGroups[1] || [];
+  teaser.forEach((card, i) => {
+    if(i === 0) card.className = 'card ' + card.classList[1] + ' deck-active';
+    else if(i === 1) card.className = 'card ' + card.classList[1] + ' deck-peek1';
+    else if(i === 2) card.className = 'card ' + card.classList[1] + ' deck-peek2';
+  });
+
+  topHint.style.opacity = '1';
+
 })();
 
 
 /* ═══════════════════════════════════════════════
-   MOBILE — composited swipe deck
-   • All positional changes via transform/opacity (compositor only)
-   • Spring-like snap using CSS transition with overshoot cubic-bezier
-   • rAF drag loop for 1:1 finger tracking
+   MOBILE ENGINE — composited swipe deck
 ═══════════════════════════════════════════════ */
 (function(){
   if(window.innerWidth > 767) return;
@@ -713,30 +1064,25 @@
 
   let current = 0;
 
-  /* Build dots */
-  cards.forEach((_,i)=>{
+  cards.forEach((_,i) => {
     const d = document.createElement('div');
     d.className = 'm-dot';
-    // use pointer events, not click — faster on mobile
-    d.addEventListener('pointerdown', e=>{ e.stopPropagation(); goTo(i); });
+    d.addEventListener('pointerdown', e => { e.stopPropagation(); goTo(i); });
     dotsEl.appendChild(d);
   });
   const dots = Array.from(dotsEl.querySelectorAll('.m-dot'));
 
-  /* Progress bar uses scaleX instead of width — only compositor */
   function setProgress(idx){
     prog.style.transform = `scaleX(${(idx+1)/total})`;
   }
 
-  /* Assign CSS class states — never touch left/top, only transform */
   function positionCards(skipTransition){
     counter.textContent = `${current+1}\u2009/\u2009${total}`;
     setProgress(current);
-    dots.forEach((d,i)=>d.classList.toggle('active', i===current));
+    dots.forEach((d,i) => d.classList.toggle('active', i===current));
     if(current > 0) hint.style.opacity = '0';
 
-    cards.forEach((card,i)=>{
-      // Remove all state classes
+    cards.forEach((card,i) => {
       card.classList.remove('active','gone','peek-1','peek-2','dragging');
       if(skipTransition) card.style.transition = 'none';
       else               card.style.transition = '';
@@ -755,9 +1101,8 @@
         card.style.zIndex    = '20';
       }
 
-      // Restore transition after a frame if we suppressed it
       if(skipTransition){
-        requestAnimationFrame(()=>{ card.style.transition=''; });
+        requestAnimationFrame(() => { card.style.transition=''; });
       }
     });
   }
@@ -768,97 +1113,67 @@
     positionCards(false);
   }
 
-  positionCards(true); // Initial layout with no animation
+  positionCards(true);
 
-  /* ── Drag / swipe ── */
+  /* Drag / swipe */
   let startX=0, startY=0, dragX=0;
   let isDown=false, axisLocked=false, axisIsX=false;
-  let rafId=null;
-  let activeCard=null;
+  let rafId=null, activeCard=null;
 
   function onDragFrame(){
     if(!isDown || !activeCard) return;
-    const rot   = dragX * 0.055;
-    const opac  = Math.max(0, 1 - Math.abs(dragX)/(window.innerWidth * 0.75));
-    // Pure transform — stays on compositor
+    const rot  = dragX * 0.055;
+    const opac = Math.max(0, 1 - Math.abs(dragX)/(window.innerWidth * 0.75));
     activeCard.style.transform = `translate3d(${dragX}px,0,0) rotate(${rot}deg)`;
     activeCard.style.opacity   = opac;
     rafId = requestAnimationFrame(onDragFrame);
   }
 
-  deck.addEventListener('pointerdown', e=>{
-    // Only primary pointer (finger or left-click)
+  deck.addEventListener('pointerdown', e => {
     if(!e.isPrimary) return;
-    // Don't start drag on dot nav
     if(e.target.classList.contains('m-dot')) return;
-
     deck.setPointerCapture(e.pointerId);
-    startX    = e.clientX;
-    startY    = e.clientY;
-    dragX     = 0;
-    isDown    = true;
-    axisLocked= false;
-    axisIsX   = false;
-    activeCard= cards[current];
-
+    startX=e.clientX; startY=e.clientY; dragX=0;
+    isDown=true; axisLocked=false; axisIsX=false;
+    activeCard=cards[current];
     if(activeCard){
       activeCard.classList.add('dragging');
-      // Kill CSS transition while dragging
-      activeCard.style.transition = 'none';
+      activeCard.style.transition='none';
     }
-
-    rafId = requestAnimationFrame(onDragFrame);
+    rafId=requestAnimationFrame(onDragFrame);
   });
 
-  deck.addEventListener('pointermove', e=>{
+  deck.addEventListener('pointermove', e => {
     if(!isDown || !e.isPrimary) return;
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
-
-    if(!axisLocked && (Math.abs(dx) > 6 || Math.abs(dy) > 6)){
-      axisIsX   = Math.abs(dx) >= Math.abs(dy);
-      axisLocked= true;
+    const dx=e.clientX-startX, dy=e.clientY-startY;
+    if(!axisLocked && (Math.abs(dx)>6 || Math.abs(dy)>6)){
+      axisIsX=Math.abs(dx)>=Math.abs(dy);
+      axisLocked=true;
     }
-
-    if(axisIsX) dragX = dx;
+    if(axisIsX) dragX=dx;
   });
 
   function endDrag(e){
     if(!isDown || !e.isPrimary) return;
-    isDown = false;
+    isDown=false;
     cancelAnimationFrame(rafId);
-
     if(activeCard){
       activeCard.classList.remove('dragging');
-      activeCard.style.transition = '';
-      activeCard = null;
+      activeCard.style.transition='';
+      activeCard=null;
     }
-
-    const dx = e.clientX - startX;
-    const threshold = window.innerWidth * 0.25; // 25% of screen = commit
-
-    if(axisIsX && Math.abs(dx) > threshold){
-      if(dx < 0) goTo(current + 1);
-      else        goTo(current - 1);
+    const dx=e.clientX-startX;
+    const threshold=window.innerWidth*0.25;
+    if(axisIsX && Math.abs(dx)>threshold){
+      if(dx<0) goTo(current+1);
+      else      goTo(current-1);
     } else {
-      // Snap back
       positionCards(false);
     }
   }
 
   deck.addEventListener('pointerup',   endDrag);
-  deck.addEventListener('pointercancel', e=>{
-    isDown=false;
-    cancelAnimationFrame(rafId);
-    if(activeCard){ activeCard.classList.remove('dragging'); activeCard.style.transition=''; activeCard=null; }
-    positionCards(false);
-  });
-
-  /* Keyboard */
-  document.addEventListener('keydown',e=>{
-    if(e.key==='ArrowRight'||e.key==='ArrowDown') goTo(current+1);
-    if(e.key==='ArrowLeft' ||e.key==='ArrowUp')   goTo(current-1);
-  });
+  deck.addEventListener('pointercancel', endDrag);
 
 })();
 </script>
