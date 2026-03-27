@@ -57,7 +57,8 @@
       border-right: 1px solid var(--border);
       position: relative;
       overflow: hidden;
-      /* perspective for 3D flip */
+      /* clip-path ensures 3D-transformed children are hard-clipped */
+      clip-path: inset(0 0 0 0);
       perspective: 1200px;
     }
 
@@ -69,32 +70,12 @@
       flex-direction: column;
       justify-content: flex-end;
       padding: 60px 64px;
-      /* 3D flip setup */
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       transform-origin: top center;
-      transform-style: preserve-3d;
+      /* NO preserve-3d — prevents faces bleeding outside panel bounds */
       will-change: transform;
-    }
-
-    /* Incoming face starts folded down (behind, rotated) */
-    .left-face.state-next {
-      transform: rotateX(-90deg);
-      pointer-events: none;
-    }
-    /* Active face is flat */
-    .left-face.state-active {
-      transform: rotateX(0deg);
-    }
-    /* Outgoing face folds up and away */
-    .left-face.state-prev {
-      transform: rotateX(90deg);
-      pointer-events: none;
-    }
-
-    /* Animate only when transitioning */
-    .left-face.animating {
-      transition: transform var(--flip-duration) cubic-bezier(0.76, 0, 0.24, 1);
+      /* hidden by default; shown via inline transform in JS */
     }
 
     /* Left face content */
@@ -205,36 +186,41 @@
                   opacity 0.4s ease;
     }
 
-    /* Card states */
+    /* Card states — fanned deck like a held hand of cards */
     .card.deck-active {
-      transform: translate3d(0,0,0) rotate(0deg);
+      transform: translate3d(0,0,0) rotate(0deg) scale(1);
       opacity: 1;
       z-index: 50;
     }
     .card.deck-peek1 {
-      transform: translate3d(0,12px,0) rotate(-3deg) scale(0.96);
-      opacity: 0.7;
+      transform: translate3d(9px, 18px, 0) rotate(3.5deg) scale(0.96);
+      opacity: 0.72;
       z-index: 40;
     }
     .card.deck-peek2 {
-      transform: translate3d(0,22px,0) rotate(-6deg) scale(0.92);
-      opacity: 0.4;
+      transform: translate3d(-11px, 30px, 0) rotate(-5.5deg) scale(0.91);
+      opacity: 0.50;
       z-index: 30;
     }
-    .card.deck-hidden {
-      transform: translate3d(0,32px,0) rotate(-9deg) scale(0.88);
-      opacity: 0;
+    .card.deck-peek3 {
+      transform: translate3d(7px, 40px, 0) rotate(8deg) scale(0.86);
+      opacity: 0.28;
       z-index: 20;
+    }
+    .card.deck-hidden {
+      transform: translate3d(0, 48px, 0) rotate(-4deg) scale(0.82);
+      opacity: 0;
+      z-index: 10;
       pointer-events: none;
     }
     /* Card flying away on advance */
     .card.deck-gone {
-      transform: translate3d(0,-130vh,0) rotate(-32deg);
+      transform: translate3d(0,-120vh,0) rotate(-28deg);
       opacity: 0;
       z-index: 5;
       pointer-events: none;
-      transition: transform 0.55s cubic-bezier(0.55,0,1,0.45),
-                  opacity 0.4s ease;
+      transition: transform 0.5s cubic-bezier(0.55,0,1,0.45),
+                  opacity 0.35s ease !important;
     }
 
     /* card internals */
@@ -357,10 +343,11 @@
         display:flex;flex-direction:column;
         transform:translate3d(0,36px,0) scale(.86);
         opacity:0;z-index:20;
-        transition:transform .42s cubic-bezier(.34,1.26,.64,1),
-                   opacity .3s ease;
+        transition:transform .38s cubic-bezier(.25,.46,.45,.94),
+                   opacity .28s ease;
         will-change:transform,opacity;
         backface-visibility:hidden;
+        -webkit-backface-visibility:hidden;
         contain:layout style paint;
         overflow:hidden;
         touch-action:none;
@@ -369,6 +356,10 @@
       .m-card.peek-2{
         transform:translate3d(0,26px,0) scale(.90);
         opacity:.25;z-index:30;
+      }
+      .m-card.peek-3{
+        transform:translate3d(0,36px,0) scale(.85);
+        opacity:.12;z-index:20;
       }
       .m-card.peek-1{
         transform:translate3d(0,14px,0) scale(.95);
@@ -465,7 +456,7 @@
       <h1 class="lf-name">Golam<br><em>Sayon</em><br>Ahamed</h1>
       <div class="lf-meta">
         <span>Design Intern — Brand &amp; Visual Communication</span>
-        <span>sayanahamed06@gmail.com</span>
+        <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7f0c1e061e111e171e121a1b4f493f18121e1613511c1012">[email&#160;protected]</a></span>
         <span>+91 700 182 0537</span>
         <span><a href="https://sayanahamed.online" target="_blank">sayanahamed.online</a></span>
       </div>
@@ -507,7 +498,7 @@
         Available for 3–6 month internship<br>
         Start: August or September 2026<br>
         Open to relocation · EU / Germany preferred<br><br>
-        sayanahamed06@gmail.com<br>
+        <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="70031109111e1118111d1514404630171d11191c5e131f1d">[email&#160;protected]</a><br>
         sayanahamed.online
       </div>
     </div>
@@ -631,7 +622,7 @@
       <div class="card c9" data-group="5" data-idx="0">
         <div><div class="card-tag">Availability</div>
         <div class="card-heading">Let's work<br>together.</div></div>
-        <div class="card-body">Available for 3–6 month internship<br>Start: August or September 2026<br>Open to relocation · EU / Germany preferred<br><br>sayanahamed06@gmail.com<br>+91 700 182 0537<br>sayanahamed.online</div>
+        <div class="card-body">Available for 3–6 month internship<br>Start: August or September 2026<br>Open to relocation · EU / Germany preferred<br><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dba8baa2bab5bab3bab6bebfebed9bbcb6bab2b7f5b8b4b6">[email&#160;protected]</a><br>+91 700 182 0537<br>sayanahamed.online</div>
         <div class="card-footer">05 — Contact</div>
       </div>
 
@@ -657,7 +648,7 @@
     <div class="m-card c9" data-i="0">
       <div class="m-section-label"><div class="m-section-dot"></div><div class="m-section-name">Hello</div></div>
       <div class="m-card-heading">Golam<br><span style="font-family:'Instrument Serif',serif;font-style:italic;color:#c8491a">Sayon</span><br>Ahamed</div>
-      <div class="m-card-body">Design Intern — Brand &amp; Visual Communication<br><br>sayanahamed06@gmail.com<br>+91 700 182 0537<br>sayanahamed.online</div>
+      <div class="m-card-body">Design Intern — Brand &amp; Visual Communication<br><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bfccdec6ded1ded7ded2dadb8f89ffd8d2ded6d391dcd0d2">[email&#160;protected]</a><br>+91 700 182 0537<br>sayanahamed.online</div>
       <div class="m-card-footer">CV · 2026</div>
     </div>
 
@@ -760,7 +751,7 @@
     <div class="m-card c9" data-i="12">
       <div class="m-section-label"><div class="m-section-dot"></div><div class="m-section-name">Availability</div></div>
       <div class="m-card-heading">Let's work<br>together.</div>
-      <div class="m-card-body">Available for 3–6 month internship<br>Start: August or September 2026<br>Open to relocation · EU / Germany preferred<br><br>sayanahamed06@gmail.com<br>+91 700 182 0537<br>sayanahamed.online</div>
+      <div class="m-card-body">Available for 3–6 month internship<br>Start: August or September 2026<br>Open to relocation · EU / Germany preferred<br><br><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8dfeecf4ece3ece5ece0e8e9bdbbcdeae0ece4e1a3eee2e0">[email&#160;protected]</a><br>+91 700 182 0537<br>sayanahamed.online</div>
       <div class="m-card-footer">05 — Contact</div>
     </div>
 
@@ -769,293 +760,247 @@
 </div><!-- /mobile-cv -->
 
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ═══════════════════════════════════════════════════════
    DESKTOP ENGINE
-   — Wheel / trackpad scroll drives section + card changes
-   — Left panel flips vertically (rotateX)
-   — Right panel shows the correct group of cards as a deck
-   — No page scrolling whatsoever
+   — All cards in one flat deck
+   — Left panel flips when crossing a section boundary
+   — Scroll / keyboard / dot-nav driven
 ═══════════════════════════════════════════════════════ */
 (function(){
   if(window.innerWidth < 768) return;
 
-  /* ── Data ── */
-  // sections: each has a left face index and a list of card indices (within that group)
+  /* ── Section map ── */
   const SECTIONS = [
-    { face:0, group:0 },   // Hero — no cards, show "intro" deck state
+    { face:0, group:0 },   // Hero (no cards)
     { face:1, group:1 },   // About & Education
     { face:2, group:2 },   // Experience
     { face:3, group:3 },   // Design Projects
     { face:4, group:4 },   // Skills & Tools
     { face:5, group:5 },   // Contact
   ];
-  const TOTAL_SECTIONS = SECTIONS.length;
+  const TOTAL = SECTIONS.length;
 
   /* ── Elements ── */
-  const leftPanel    = document.getElementById('left-panel');
-  const faces        = Array.from(leftPanel.querySelectorAll('.left-face'));
-  const cardDeck     = document.getElementById('card-deck');
-  const allCards     = Array.from(cardDeck.querySelectorAll('.card'));
-  const scrollLabel  = document.getElementById('scroll-label');
-  const topHint      = document.getElementById('top-card-scroll');
-  const sectionNav   = document.getElementById('section-nav');
+  const leftPanel   = document.getElementById('left-panel');
+  const faces       = Array.from(leftPanel.querySelectorAll('.left-face'));
+  const cardDeck    = document.getElementById('card-deck');
+  const rawCards    = Array.from(cardDeck.querySelectorAll('.card'));
+  const scrollLabel = document.getElementById('scroll-label');
+  const topHint     = document.getElementById('top-card-scroll');
+  const sectionNav  = document.getElementById('section-nav');
 
-  /* Group cards by their data-group attribute */
-  const cardGroups = {};
-  allCards.forEach(card => {
-    const g = parseInt(card.dataset.group);
-    if(!cardGroups[g]) cardGroups[g] = [];
-    cardGroups[g].push(card);
+  /* ── Group cards, then build flat ordered deck (groups 1-5) ── */
+  const byGroup = {};
+  rawCards.forEach(c => {
+    const g = parseInt(c.dataset.group);
+    if(!byGroup[g]) byGroup[g] = [];
+    byGroup[g].push(c);
   });
+  const deck = [];
+  for(let g = 1; g <= 5; g++) (byGroup[g] || []).forEach(c => deck.push(c));
+
+  /* ── Group → section index ── */
+  const groupToSec = {};
+  SECTIONS.forEach((s,i) => { groupToSec[s.group] = i; });
 
   /* ── State ── */
-  let currentSection = 0;
-  let cardIndexInGroup = 0;  // which card within current group is "top"
-  let isAnimating = false;
+  let cardIdx   = 0;     // current top card in flat deck
+  let leftFace  = 0;     // which left face is showing
+  let panelBusy = false; // panel flip in progress
   let wheelAccum = 0;
-  const WHEEL_THRESH = 60;
+  const WHEEL_THRESH = 50;
 
   /* ── Nav dots ── */
-  SECTIONS.forEach((s, i) => {
+  SECTIONS.forEach((_,i) => {
     const dot = document.createElement('div');
-    dot.className = 'snav-dot' + (i === 0 ? ' active' : '');
-    dot.addEventListener('click', () => {
-      if(!isAnimating) goToSection(i, i > currentSection ? 'forward' : 'backward');
-    });
+    dot.className = 'snav-dot' + (i===0 ? ' active' : '');
+    dot.addEventListener('click', () => { if(!panelBusy) jumpTo(i); });
     sectionNav.appendChild(dot);
   });
   const navDots = Array.from(sectionNav.querySelectorAll('.snav-dot'));
 
-  /* ── Layout all cards ── */
-  function layoutCards(section, cardIdx, instant) {
-    const group = SECTIONS[section].group;
-    const cards = cardGroups[group] || [];
-
-    // Hide all cards not in this group
-    allCards.forEach(card => {
-      const g = parseInt(card.dataset.group);
-      if(g !== group) {
-        card.className = 'card ' + card.classList[1] + ' deck-hidden';
-        card.style.transition = instant ? 'none' : '';
-      }
-    });
-
-    // Lay out cards in current group
-    cards.forEach((card, i) => {
-      const offset = i - cardIdx;
-      card.style.transition = instant ? 'none' : '';
-      if(offset < 0) {
-        card.className = 'card ' + card.classList[1] + ' deck-gone';
-      } else if(offset === 0) {
-        card.className = 'card ' + card.classList[1] + ' deck-active';
-      } else if(offset === 1) {
-        card.className = 'card ' + card.classList[1] + ' deck-peek1';
-      } else if(offset === 2) {
-        card.className = 'card ' + card.classList[1] + ' deck-peek2';
-      } else {
-        card.className = 'card ' + card.classList[1] + ' deck-hidden';
-      }
-    });
-
-    // Show/hide scroll label and top hint
-    const hasMoreCards = cardIdx < cards.length - 1;
-    const hasMoreSections = section < TOTAL_SECTIONS - 1;
-    scrollLabel.style.opacity = (hasMoreCards || hasMoreSections) ? '1' : '0';
-    topHint.style.opacity = (section === 0) ? '1' : (hasMoreCards ? '0.6' : '0.2');
-
-    if(instant) {
-      requestAnimationFrame(() => {
-        allCards.forEach(c => { c.style.transition = ''; });
-      });
-    }
+  function updateUI() {
+    navDots.forEach((d,i) => d.classList.toggle('active', i === leftFace));
+    scrollLabel.style.opacity = cardIdx < deck.length - 1 ? '1' : '0';
+    if(topHint) topHint.style.opacity = leftFace === 0 ? '1' : '0';
   }
 
-  /* ── Flip left face ── */
-  function flipLeft(fromIdx, toIdx, direction, cb) {
-    const fromFace = faces[fromIdx];
-    const toFace   = faces[toIdx];
+  /* ── Layout the flat deck ── */
+  function layoutDeck(idx, instant) {
+    deck.forEach((card, i) => {
+      if(instant) card.style.transition = 'none';
+      else card.style.transition = '';
 
+      const cc = Array.from(card.classList).find(c => /^c\d+$/.test(c)) || '';
+      const offset = i - idx;
+      let state;
+      if     (offset < 0)   state = 'deck-gone';
+      else if(offset === 0) state = 'deck-active';
+      else if(offset === 1) state = 'deck-peek1';
+      else if(offset === 2) state = 'deck-peek2';
+      else if(offset === 3) state = 'deck-peek3';
+      else                  state = 'deck-hidden';
+
+      card.className = `card ${cc} ${state}`;
+    });
+    if(instant) requestAnimationFrame(() => deck.forEach(c => { c.style.transition = ''; }));
+  }
+
+  /* ── Flip left panel face ── */
+  function flipFace(from, to, dir, cb) {
+    if(from === to) { cb && cb(); return; }
+    const fEl = faces[from];
+    const tEl = faces[to];
     leftPanel.classList.add('flipping');
 
-    // Set initial state of incoming face without transition
-    toFace.classList.remove('animating');
-    toFace.className = 'left-face';
-    toFace.style.transform = direction === 'forward'
-      ? 'rotateX(-90deg)'
-      : 'rotateX(90deg)';
-
-    // Force reflow
-    void toFace.offsetHeight;
-
-    // Animate both faces
-    fromFace.classList.add('animating');
-    toFace.classList.add('animating');
-
-    fromFace.style.transform = direction === 'forward'
-      ? 'rotateX(90deg)'
-      : 'rotateX(-90deg)';
-    toFace.style.transform = 'rotateX(0deg)';
-
-    const dur = parseFloat(getComputedStyle(document.documentElement)
+    const DUR = parseFloat(getComputedStyle(document.documentElement)
       .getPropertyValue('--flip-duration')) * 1000;
+    const ease = `${DUR/1000}s cubic-bezier(0.76,0,0.24,1)`;
+
+    tEl.style.transition = 'none';
+    tEl.style.transform  = dir === 'forward' ? 'rotateX(-90deg)' : 'rotateX(90deg)';
+    void tEl.offsetHeight;
+
+    fEl.style.transition = `transform ${ease}`;
+    tEl.style.transition = `transform ${ease}`;
+    fEl.style.transform  = dir === 'forward' ? 'rotateX(90deg)' : 'rotateX(-90deg)';
+    tEl.style.transform  = 'rotateX(0deg)';
 
     setTimeout(() => {
-      fromFace.classList.remove('animating');
-      toFace.classList.remove('animating');
-      fromFace.style.transform = '';
-      toFace.style.transform   = '';
-      // Reset class states
-      faces.forEach((f, i) => {
-        f.className = 'left-face';
-        if(i < toIdx)      f.style.transform = 'rotateX(90deg)';
-        else if(i === toIdx) f.style.transform = 'rotateX(0deg)';
-        else                 f.style.transform = 'rotateX(-90deg)';
+      faces.forEach((f,i) => {
+        f.style.transition = 'none';
+        f.style.transform  = i < to ? 'rotateX(90deg)' : i === to ? 'rotateX(0deg)' : 'rotateX(-90deg)';
       });
       leftPanel.classList.remove('flipping');
+      panelBusy = false;
       cb && cb();
-    }, dur + 20);
+    }, DUR + 20);
   }
 
-  /* ── Go to section ── */
-  function goToSection(newSection, direction) {
-    if(newSection < 0 || newSection >= TOTAL_SECTIONS) return;
-    if(isAnimating) return;
-    isAnimating = true;
+  /* ── Advance one step ── */
+  function advance() {
+    if(panelBusy) return;
 
-    const prevSection = currentSection;
-    const prevFace    = SECTIONS[prevSection].face;
-    const newFace     = SECTIONS[newSection].face;
-    currentSection    = newSection;
-    cardIndexInGroup  = 0;
-
-    // Update nav dots
-    navDots.forEach((d,i) => d.classList.toggle('active', i === newSection));
-
-    // Flip left panel
-    flipLeft(prevFace, newFace, direction, () => {
-      isAnimating = false;
-    });
-
-    // Animate cards
-    layoutCards(newSection, 0, false);
-  }
-
-  /* ── Advance card within section ── */
-  function advanceCard() {
-    const group = SECTIONS[currentSection].group;
-    const cards = cardGroups[group] || [];
-    if(cardIndexInGroup < cards.length - 1) {
-      cardIndexInGroup++;
-      layoutCards(currentSection, cardIndexInGroup, false);
-      return true; // consumed
+    /* From hero: flip to section 1, cards already in place */
+    if(leftFace === 0) {
+      const newSec = groupToSec[parseInt(deck[0].dataset.group)] || 1;
+      panelBusy = true;
+      flipFace(0, newSec, 'forward', () => {});
+      leftFace = newSec;
+      updateUI();
+      return;
     }
-    return false;
-  }
 
-  function retreatCard() {
-    if(cardIndexInGroup > 0) {
-      cardIndexInGroup--;
-      layoutCards(currentSection, cardIndexInGroup, false);
-      return true;
+    if(cardIdx >= deck.length - 1) return;
+
+    const prevGroup = parseInt(deck[cardIdx].dataset.group);
+    cardIdx++;
+    const newGroup  = parseInt(deck[cardIdx].dataset.group);
+    layoutDeck(cardIdx, false);
+
+    if(newGroup !== prevGroup) {
+      const newSec = groupToSec[newGroup] ?? leftFace;
+      if(newSec !== leftFace) {
+        panelBusy = true;
+        flipFace(leftFace, newSec, 'forward', () => {});
+        leftFace = newSec;
+      }
     }
-    return false;
+    updateUI();
   }
 
-  /* ── Wheel handler ── */
+  /* ── Retreat one step ── */
+  function retreat() {
+    if(panelBusy) return;
+
+    if(cardIdx === 0) {
+      if(leftFace > 0) {
+        panelBusy = true;
+        flipFace(leftFace, 0, 'backward', () => {});
+        leftFace = 0;
+        updateUI();
+      }
+      return;
+    }
+
+    const prevGroup = parseInt(deck[cardIdx].dataset.group);
+    cardIdx--;
+    const newGroup  = parseInt(deck[cardIdx].dataset.group);
+    layoutDeck(cardIdx, false);
+
+    if(newGroup !== prevGroup) {
+      const newSec = groupToSec[newGroup] ?? leftFace;
+      if(newSec !== leftFace) {
+        panelBusy = true;
+        flipFace(leftFace, newSec, 'backward', () => {});
+        leftFace = newSec;
+      }
+    }
+    updateUI();
+  }
+
+  /* ── Jump to section via dot ── */
+  function jumpTo(sec) {
+    if(panelBusy || sec === leftFace) return;
+    const dir = sec > leftFace ? 'forward' : 'backward';
+
+    let targetIdx = 0;
+    if(sec > 0) {
+      const tGroup = SECTIONS[sec].group;
+      const found  = deck.findIndex(c => parseInt(c.dataset.group) === tGroup);
+      if(found !== -1) targetIdx = found;
+    }
+
+    panelBusy = true;
+    flipFace(leftFace, sec, dir, () => {});
+    leftFace = sec;
+    cardIdx  = targetIdx;
+    layoutDeck(cardIdx, false);
+    updateUI();
+  }
+
+  /* ── Wheel ── */
   let wheelTimer = null;
   window.addEventListener('wheel', e => {
     e.preventDefault();
-
-    // Trackpad: small deltas accumulate; mouse wheel: large delta, snap immediately
-    const delta = e.deltaY;
-    wheelAccum += delta;
-
+    wheelAccum += e.deltaY;
     clearTimeout(wheelTimer);
     wheelTimer = setTimeout(() => { wheelAccum = 0; }, 200);
-
     if(Math.abs(wheelAccum) < WHEEL_THRESH) return;
-    const direction = wheelAccum > 0 ? 'forward' : 'backward';
+    const dir = wheelAccum > 0 ? 'forward' : 'backward';
     wheelAccum = 0;
-
-    if(isAnimating) return;
-
-    if(direction === 'forward') {
-      // Try advancing card first
-      if(!advanceCard()) {
-        // Then advance section
-        if(currentSection < TOTAL_SECTIONS - 1) {
-          goToSection(currentSection + 1, 'forward');
-        }
-      }
-    } else {
-      // Try retreating card first
-      if(!retreatCard()) {
-        if(currentSection > 0) {
-          goToSection(currentSection - 1, 'backward');
-          // Go to last card in previous section
-          setTimeout(() => {
-            const group = SECTIONS[currentSection].group;
-            const cards = cardGroups[group] || [];
-            cardIndexInGroup = Math.max(0, cards.length - 1);
-            layoutCards(currentSection, cardIndexInGroup, false);
-          }, 100);
-        }
-      }
-    }
+    if(dir === 'forward') advance(); else retreat();
   }, { passive: false });
 
   /* ── Keyboard ── */
   window.addEventListener('keydown', e => {
-    if(isAnimating) return;
-    if(e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-      if(!advanceCard()) {
-        if(currentSection < TOTAL_SECTIONS - 1)
-          goToSection(currentSection + 1, 'forward');
-      }
-    } else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-      if(!retreatCard()) {
-        if(currentSection > 0)
-          goToSection(currentSection - 1, 'backward');
-      }
-    }
+    if(e.key === 'ArrowDown' || e.key === 'ArrowRight') advance();
+    else if(e.key === 'ArrowUp' || e.key === 'ArrowLeft') retreat();
   });
 
-  /* ── Initial layout ── */
-  // Set all faces to their initial transform
-  faces.forEach((f, i) => {
-    f.style.transform = i === 0 ? 'rotateX(0deg)' : 'rotateX(-90deg)';
+  /* ── Init ── */
+  faces.forEach((f,i) => {
+    f.style.transition = 'none';
+    f.style.transform  = i === 0 ? 'rotateX(0deg)' : 'rotateX(-90deg)';
   });
-
-  // Hide all cards first, then show group 0 (none — hero has no group 0 cards)
-  // Actually hero shows a "teaser" — first cards of group 1 peeking
-  allCards.forEach(card => {
-    card.className = 'card ' + card.classList[1] + ' deck-hidden';
-  });
-
-  // Show first section's cards as teaser
-  const teaser = cardGroups[1] || [];
-  teaser.forEach((card, i) => {
-    if(i === 0) card.className = 'card ' + card.classList[1] + ' deck-active';
-    else if(i === 1) card.className = 'card ' + card.classList[1] + ' deck-peek1';
-    else if(i === 2) card.className = 'card ' + card.classList[1] + ' deck-peek2';
-  });
-
-  topHint.style.opacity = '1';
+  layoutDeck(0, true);
+  updateUI();
 
 })();
 
 
 /* ═══════════════════════════════════════════════
-   MOBILE ENGINE — composited swipe deck
+   MOBILE ENGINE — GPU-composited swipe deck
+   Performance: single RAF loop, minimal DOM writes
 ═══════════════════════════════════════════════ */
 (function(){
   if(window.innerWidth > 767) return;
 
-  const deck    = document.getElementById('m-deck');
-  if(!deck) return;
+  const deckEl  = document.getElementById('m-deck');
+  if(!deckEl) return;
 
-  const cards   = Array.from(deck.querySelectorAll('.m-card'));
+  const cards   = Array.from(deckEl.querySelectorAll('.m-card'));
   const total   = cards.length;
   const counter = document.getElementById('m-counter');
   const prog    = document.getElementById('m-prog');
@@ -1063,7 +1008,9 @@
   const dotsEl  = document.getElementById('m-dots');
 
   let current = 0;
+  let isSettling = false;
 
+  /* ── Dots ── */
   cards.forEach((_,i) => {
     const d = document.createElement('div');
     d.className = 'm-dot';
@@ -1072,110 +1019,136 @@
   });
   const dots = Array.from(dotsEl.querySelectorAll('.m-dot'));
 
-  function setProgress(idx){
+  /* ── Apply card positions (no DOM reads inside) ── */
+  function applyLayout(idx, skipTransition) {
+    counter.textContent = `${idx+1}\u2009/\u2009${total}`;
     prog.style.transform = `scaleX(${(idx+1)/total})`;
-  }
+    dots.forEach((d,i) => d.classList.toggle('active', i===idx));
+    if(idx > 0) hint.style.opacity = '0';
 
-  function positionCards(skipTransition){
-    counter.textContent = `${current+1}\u2009/\u2009${total}`;
-    setProgress(current);
-    dots.forEach((d,i) => d.classList.toggle('active', i===current));
-    if(current > 0) hint.style.opacity = '0';
+    cards.forEach((card, i) => {
+      const offset = i - idx;
+      const prevClass = card._stateClass || '';
 
-    cards.forEach((card,i) => {
-      card.classList.remove('active','gone','peek-1','peek-2','dragging');
-      if(skipTransition) card.style.transition = 'none';
-      else               card.style.transition = '';
-
-      const offset = i - current;
-      if     (offset < 0)  { card.classList.add('gone');   card.style.zIndex='5';  }
-      else if(offset === 0){ card.classList.add('active');  card.style.zIndex='50'; }
-      else if(offset === 1){ card.classList.add('peek-1');  card.style.zIndex='40'; }
-      else if(offset === 2){
-        card.style.transform = 'translate3d(0,26px,0) scale(.90)';
-        card.style.opacity   = '.25';
-        card.style.zIndex    = '30';
+      let cls, tr, op, zi;
+      if(offset < 0) {
+        cls = 'gone'; tr = 'translate3d(-110vw,0,0) rotate(-16deg)'; op = '0'; zi = '5';
+      } else if(offset === 0) {
+        cls = 'active'; tr = 'translate3d(0,0,0) scale(1)'; op = '1'; zi = '50';
+      } else if(offset === 1) {
+        cls = 'peek-1'; tr = 'translate3d(0,14px,0) scale(.95)'; op = '.6'; zi = '40';
+      } else if(offset === 2) {
+        cls = 'peek-2'; tr = 'translate3d(0,26px,0) scale(.90)'; op = '.3'; zi = '30';
+      } else if(offset === 3) {
+        cls = 'peek-3'; tr = 'translate3d(0,36px,0) scale(.85)'; op = '.15'; zi = '20';
       } else {
-        card.style.transform = 'translate3d(0,36px,0) scale(.86)';
-        card.style.opacity   = '0';
-        card.style.zIndex    = '20';
+        cls = 'hidden'; tr = 'translate3d(0,44px,0) scale(.82)'; op = '0'; zi = '10';
       }
 
-      if(skipTransition){
-        requestAnimationFrame(() => { card.style.transition=''; });
+      if(skipTransition) {
+        card.style.transition = 'none';
+      } else if(prevClass !== cls) {
+        card.style.transition = '';
       }
+
+      card.style.transform = tr;
+      card.style.opacity   = op;
+      card.style.zIndex    = zi;
+      card._stateClass     = cls;
     });
+
+    if(skipTransition) {
+      requestAnimationFrame(() => {
+        cards.forEach(c => { c.style.transition = ''; });
+      });
+    }
   }
 
-  function goTo(i){
-    if(i < 0 || i >= total) return;
+  function goTo(i) {
+    if(i < 0 || i >= total || isSettling) return;
+    isSettling = true;
     current = i;
-    positionCards(false);
+    applyLayout(current, false);
+    setTimeout(() => { isSettling = false; }, 420);
   }
 
-  positionCards(true);
+  applyLayout(0, true);
 
-  /* Drag / swipe */
-  let startX=0, startY=0, dragX=0;
-  let isDown=false, axisLocked=false, axisIsX=false;
-  let rafId=null, activeCard=null;
+  /* ── Drag / swipe ── */
+  let startX = 0, startY = 0, dragX = 0;
+  let isDown = false, axisLocked = false, axisIsX = false;
+  let rafId = null;
+  let lastDragX = 0;
 
-  function onDragFrame(){
-    if(!isDown || !activeCard) return;
-    const rot  = dragX * 0.055;
-    const opac = Math.max(0, 1 - Math.abs(dragX)/(window.innerWidth * 0.75));
-    activeCard.style.transform = `translate3d(${dragX}px,0,0) rotate(${rot}deg)`;
-    activeCard.style.opacity   = opac;
-    rafId = requestAnimationFrame(onDragFrame);
+  function runDragRAF() {
+    if(!isDown) { rafId = null; return; }
+    if(dragX !== lastDragX) {
+      const rot  = dragX * 0.05;
+      const opac = Math.max(0, 1 - Math.abs(dragX) / (window.innerWidth * 0.7));
+      const activeCard = cards[current];
+      if(activeCard) {
+        activeCard.style.transform = `translate3d(${dragX}px,0,0) rotate(${rot}deg)`;
+        activeCard.style.opacity   = String(opac);
+      }
+      lastDragX = dragX;
+    }
+    rafId = requestAnimationFrame(runDragRAF);
   }
 
-  deck.addEventListener('pointerdown', e => {
-    if(!e.isPrimary) return;
+  deckEl.addEventListener('pointerdown', e => {
+    if(!e.isPrimary || isSettling) return;
     if(e.target.classList.contains('m-dot')) return;
-    deck.setPointerCapture(e.pointerId);
-    startX=e.clientX; startY=e.clientY; dragX=0;
-    isDown=true; axisLocked=false; axisIsX=false;
-    activeCard=cards[current];
-    if(activeCard){
-      activeCard.classList.add('dragging');
-      activeCard.style.transition='none';
-    }
-    rafId=requestAnimationFrame(onDragFrame);
-  });
-
-  deck.addEventListener('pointermove', e => {
-    if(!isDown || !e.isPrimary) return;
-    const dx=e.clientX-startX, dy=e.clientY-startY;
-    if(!axisLocked && (Math.abs(dx)>6 || Math.abs(dy)>6)){
-      axisIsX=Math.abs(dx)>=Math.abs(dy);
-      axisLocked=true;
-    }
-    if(axisIsX) dragX=dx;
-  });
-
-  function endDrag(e){
-    if(!isDown || !e.isPrimary) return;
-    isDown=false;
+    deckEl.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY; dragX = 0; lastDragX = 0;
+    isDown = true; axisLocked = false; axisIsX = false;
+    const ac = cards[current];
+    if(ac) ac.style.transition = 'none';
     cancelAnimationFrame(rafId);
-    if(activeCard){
-      activeCard.classList.remove('dragging');
-      activeCard.style.transition='';
-      activeCard=null;
+    rafId = requestAnimationFrame(runDragRAF);
+  }, { passive: true });
+
+  deckEl.addEventListener('pointermove', e => {
+    if(!isDown || !e.isPrimary) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if(!axisLocked && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+      axisIsX    = Math.abs(dx) > Math.abs(dy);
+      axisLocked = true;
     }
-    const dx=e.clientX-startX;
-    const threshold=window.innerWidth*0.25;
-    if(axisIsX && Math.abs(dx)>threshold){
-      if(dx<0) goTo(current+1);
-      else      goTo(current-1);
+    if(!axisLocked || !axisIsX) return;
+    e.preventDefault();
+    dragX = dx;
+  }, { passive: false });
+
+  function endDrag() {
+    if(!isDown) return;
+    isDown = false;
+    cancelAnimationFrame(rafId);
+    rafId = null;
+
+    const ac = cards[current];
+    if(!ac) return;
+    ac.style.transition = '';
+
+    const threshold = window.innerWidth * 0.3;
+    if(dragX < -threshold && current < total - 1) {
+      goTo(current + 1);
+    } else if(dragX > threshold && current > 0) {
+      goTo(current - 1);
     } else {
-      positionCards(false);
+      /* snap back */
+      ac.style.transform = 'translate3d(0,0,0) scale(1)';
+      ac.style.opacity   = '1';
     }
   }
 
-  deck.addEventListener('pointerup',   endDrag);
-  deck.addEventListener('pointercancel', endDrag);
+  deckEl.addEventListener('pointerup',     endDrag, { passive: true });
+  deckEl.addEventListener('pointercancel', endDrag, { passive: true });
+
+  /* ── Keyboard on mobile (optional) ── */
+  window.addEventListener('keydown', e => {
+    if(e.key === 'ArrowRight') goTo(current + 1);
+    else if(e.key === 'ArrowLeft') goTo(current - 1);
+  });
 
 })();
-</script>
-</body>
-</html>
